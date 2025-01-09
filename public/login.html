@@ -98,45 +98,37 @@
         <div class="row w-100">
             <div class="col-md-6 mx-auto">
                 <!-- Tarjeta de formulario -->
-                 <div class="card ">
-                    <div class="card-body p-4 mb-50">
+                <div class="card shadow-lg">
+                    <div class="card-body p-4">
                         <h2 class="text-center mb-4">Iniciar Sesión</h2>
-
                         <!-- Formulario -->
-                         <form id="loginForm" >
+                        <form id="loginForm">
                             <div class="mb-3">
                                 <label for="email" class="form-label">Correo Electronico</label>
-                                <input type="text" class="form-control" id="email" name="email" placeholder="Ingrese su correo electronico" required>
+                                <input type="text" class="form-control" name="email" placeholder="Ingrese su correo electronico" required>
                             </div>
                             <div class="mb-3">
                                 <label for="password" class="form-label">Contraseña</label>
-                                <input type="password" class="form-control" name="password" id="password" placeholder="Ingrese su contraseña" required>
+                                <input type="password" class="form-control"  name="password" placeholder="Ingrese su contraseña" required>
                             </div>
                             <div class="d-grid gap-2">
-                                <button type="submit" class="btn">Iniciar Sesión</button>
-
+                                <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
                             </div>
-
-                         </form>
-
-
+                        </form>
                     </div>
-
-                 </div>
-
+                </div>
             </div>
-
         </div>
-
     </div>
     
 
 
 
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
-
+<!--     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+   
     <script>
         const loginForm = document.querySelector('#loginForm')
         loginForm.addEventListener('submit', async (e) => {
@@ -153,13 +145,12 @@
                     window.location.href = '/home'
                     return
                 }
-
-                window.location.href = '/home'
             } catch (error) {
                 console.error('Error during login:', error);
                 alert('Login failed. Please check your credentials and try again.');
             }
         });
     </script>
+        
 </body>
 </html>

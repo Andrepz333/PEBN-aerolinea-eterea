@@ -1,13 +1,13 @@
 import {db} from '../database/conexion_db.js';
 
-const createCliente = async ({nombre, apellido, direccion, telefono, email}) => {
+const createCliente = async ({cliente_id, nombre, apellido, direccion, telefono, email}) => {
     const query = {
         text: `
-        INSERT INTO aerolinea.cliente (nombre, apellido, direccion, telefono, email)
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO aerolinea.cliente ( cliente_id, nombre, apellido, direccion, telefono, email)
+        VALUES ($1, $2, $3, $4, $5 $6)
         RETURNING *
         `,
-        values: [nombre, apellido, direccion, telefono, email]
+        values: [cliente_id, nombre, apellido, direccion, telefono, email]
     }
 
 

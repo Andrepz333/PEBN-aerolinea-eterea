@@ -1,52 +1,30 @@
 import jwt from 'jsonwebtoken';
 
 export const verifyToken = (req, res, next) => {
-    try {
-        let token = req.headers.authorization;
-        
-        if (!token) {
-            return res.status(401).json({ 
-                ok: false, 
-                message: 'Token no proporcionado' 
-            });
-        }
+    let token = req.headers.authorization
 
-        // Verificamos que el token comience con "Bearer "
-        if (!token.startsWith('Bearer ')) {
-            return res.status(401).json({ 
-                ok: false, 
-                message: 'Formato de token inválido' 
-            });
-        }
+    if(!token) {
+        return res.status(401).json({message: 'Token not provided.'})
+    }
+    // Eliminamos la palabra "Bearer" y dejamos solo el token
+    token = token.split(' ')[1]
 
-        // Eliminamos "Bearer " y nos quedamos solo con el token
-        token = token.split(' ')[1];
+    try {//payload del token
+        const { email, role } = jwt.verify(token, process.env.JWT_SECRET)
+        req.email = email
+        req.role = role
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        
-        // Guardamos la información decodificada en req
-        req.email = decoded.email;
-        req.role = decoded.role;
-        
-        next();
+        next()// Continuamos con el siguiente middleware o la ruta
+
     } catch (error) {
-        console.log('Error al verificar token:', error);
-        if (error.name === 'TokenExpiredError') {
-            return res.status(401).json({ 
-                ok: false, 
-                message: 'Token expirado' 
-            });
-        }
-        return res.status(401).json({ 
-            ok: false, 
-            message: 'Token inválido' 
-        });
+        console.log(error)
+        return res.status(400).json({
+                                error: 'Error verifying token.'})
     }
 }
 
-
 export const verifyAdmin = (req, res, next) => {
-    if (req.role === 'superadmin' || req.role === 'editor') {
+    if (req.role === 'Superadmin' || req.role === 'editor') {
         return next()
     }
     return res.status(403).json({error: 'Only admin login!'})

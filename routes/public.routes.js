@@ -22,9 +22,9 @@ router.get('/clientes', (req, res) => {
 const __filename = fileURLToPath(import.meta.url);//añadido
 const __dirname = path.dirname(__filename);//añadido
 
-//ruta cliente
-router.get('/cliente', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/cliente.html'));
+//ruta login
+router.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/login.html'));
 });
 
 //ruta home
@@ -32,14 +32,14 @@ router.get('/home', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
+//ruta cliente
+router.get('/cliente', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/cliente.html'));
+});
+
 //ruta pasajero
 router.get('/pasajero', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/pasajero.html'));
-});
-
-//ruta login
-router.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/login.html'));
 });
 
 //ruta vuelo

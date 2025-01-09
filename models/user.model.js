@@ -1,10 +1,10 @@
 import { db } from '../database/conexion_db.js';
-
+//CREATE
 const createUser = async ({email, password, role}) => {
     const query = {
         text: `
-        INSERT INTO public.users (email, password, role) 
-        VALUES ($1, $2, $3 ) 
+        INSERT INTO public.users (email, password, role)
+        VALUES ($1, $2, $3) 
         RETURNING email, password, role
         `,
         values: [email, password, role]
@@ -13,26 +13,28 @@ const createUser = async ({email, password, role}) => {
     const { rows } = await db.query(query);
     return rows[0];
 }
-
+//READ
 const showUser = async () => {
-    try {
-        const result = await db.query('SELECT id, email, role, created_at FROM public.users');
-        return result.rows;
-    } catch (error) {
-        throw new Error('Error al obtener usuarios');
-    }
+    const result = {
+        text:`
+        SELECT * FROM public.users`
+    };
+    const { rows } = await db.query(result);
+    return rows
 }
 
 const findOneByEmail = async (email) => {
     const query = {
         text:`
-        SELECT * FROM public.users 
-        WHERE email = $1`,
+        SELECT * FROM public.users
+        WHERE email = $1
+        `,
         values: [email]
     }
-    const {rows} = await db.query(query);
+    const {rows} = await db.query(query, [email]);
     return rows[0];
 }
+
 
 export const UserModel = {
     createUser,
