@@ -34,7 +34,7 @@ router.get('/home', (req, res) => {
 
 //ruta cliente
 router.get('/cliente', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/cliente.html'));
+    res.sendFile(path.join(__dirname, '../public/Cliente.html'));
 });
 
 //ruta pasajero

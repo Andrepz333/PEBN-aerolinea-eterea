@@ -112,7 +112,7 @@
                                 <input type="password" class="form-control"  name="password" placeholder="Ingrese su contraseña" required>
                             </div>
                             <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+                                <button type="submit" class="btn">Iniciar Sesión</button>
                             </div>
                         </form>
                     </div>
@@ -129,28 +129,51 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
    
-    <script>
-        const loginForm = document.querySelector('#loginForm')
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault()
-            const email = e.target.email.value
-            const password = e.target.password.value
-            try {
-                const { data } = await axios.post('/api/v1/users/logUser', {
-                    email, password
-                })
-                localStorage.setItem('token', data.message.token)
 
-                if (data.message.role === 'Superadmin') {
-                    window.location.href = '/home'
-                    return
-                }
-            } catch (error) {
-                console.error('Error during login:', error);
-                alert('Login failed. Please check your credentials and try again.');
-            }
-        });
-    </script>
+    <script>
+        const loginForm = document.querySelector('#loginForm');
         
+        loginForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+      
+          // Captura los valores del formulario
+          const email = e.target.email.value;
+          const password = e.target.password.value;
+      
+          try {
+            // Envía la solicitud al backend
+            const { data } = await axios.post('/api/v1/users/logUser', { email, password });
+            // En el manejador del login
+    
+             // Guarda el token en localStorage
+            localStorage.setItem('token', data.token); 
+      
+            // Redirección según el rol
+            if (data.role === 'Superadmin') {
+              alert(data.message); // Mensaje de éxito
+              window.location.href = '/home'; // Redirigir a home
+            } else if (data.role === 'editor') {
+              alert(data.message); // Mensaje de éxito
+              window.location.href = '/home'; // Redirigir al dashboard del editor
+            } else if (data.role === 'viewer') {
+              alert(data.message); // Mensaje de éxito
+              window.location.href = '/home'; // Redirigir a la página de vista
+            } else {
+              alert('Rol no reconocido.'); // Si el rol no está definido
+            }
+          } catch (error) {
+            // Manejo de errores
+            if (error.response && error.response.data && error.response.data.error) {
+              alert(error.response.data.error); // Muestra el mensaje de error del backend
+            } else {
+              console.error('Error durante el login:', error);
+              alert('Hubo un problema en el servidor. Intenta más tarde.');
+            }
+          }
+        });
+      </script>
+      
+    
+
 </body>
 </html>

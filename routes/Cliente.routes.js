@@ -1,22 +1,23 @@
-import express from 'express';
-import { ClientController } from '../controllers/Cliente.controller.js';
-import { verifyToken, verifyAdmin } from '../middlewares/jwt.middlewares.js'; // Asegúrate de importar estos middlewares
+import { Router } from "express";
+import { ClientController } from "../controllers/Cliente.controller.js";
+import { verifyAdmin, verifyToken } from "../middlewares/jwt.middlewares.js";
 
-const router = express.Router();
+const router = Router();
 
-// http://localhost:3000/api/v1/clientes/register
+// Ruta para registrar un cliente
 router.post('/register', ClientController.registerCliente);
 
-// http://localhost:3000/api/v1/clientes/list
+// Ruta para mostrar los clientes
 router.get('/list', ClientController.listCliente);
 
-// http://localhost:3000/api/v1/clientes/search
+// Ruta para buscar los clientes
 router.get('/search', ClientController.searchCliente);
 
-// http://localhost:3000/api/v1/clientes/deleteClients/:cliente_id
+// Ruta para eliminar un cliente
 router.delete('/:cliente_id', verifyToken, verifyAdmin, ClientController.deleteCliente);
 
-// http://localhost:3000/api/v1/clientes/update/:cliente_id
-router.put('/update/:cliente_id', verifyToken, verifyAdmin, ClientController.updateClient);
+// Ruta protegida para actualizar un cliente (PUT y PATCH)
+router.put('/:cliente_id', verifyToken, verifyAdmin, ClientController.updateClient);
+router.patch('/:cliente_id', verifyToken, verifyAdmin, ClientController.updateClient);
 
 export default router;

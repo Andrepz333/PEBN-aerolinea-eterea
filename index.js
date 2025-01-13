@@ -1,5 +1,6 @@
 import 'dotenv/config'; // Importa la configuración de entorno 
 import express from 'express'; // Importar el modulo express
+import jwt from 'jsonwebtoken'; // Importar la librería jsonwebtoken
 // import cors from 'cors'; // Importar el modulo cors
 import clienteRouter from './routes/Cliente.routes.js';
 import publicRouter from './routes/public.routes.js';
@@ -41,6 +42,44 @@ app.use(express.urlencoded({ extended: true })); // Formdata para trámites con 
 app.use(express.static(path.join(__dirname, 'public')));
 
 
+
+// Endpoint del login
+const users = [
+    { email: 'admin@example.com', password: 'adminP1', role: 'Superadmin' },
+    { email: 'editor@example.com', password: 'editorP1', role: 'editor' },
+    { email: 'viewer@example.com', password: 'viewerP1', role: 'viewer' }
+  ];
+  
+  app.post('/api/v1/users/logUser', (req, res) => {
+    const { email, password } = req.body;
+  
+    // Buscar al usuario en la lista
+    const user = users.find((u) => u.email === email && u.password === password);
+  
+    if (user) {
+      // Generar el token JWT
+    const token = jwt.sign(
+      { email: user.email, role: user.role }, // Información dentro del token (payload)
+      process.env.JWT_SECRET,               // Clave secreta
+      { expiresIn: '1h' }                   // Expiración del token
+    );
+      return res.json({ 
+        message: 'Login exitoso',
+        role: user.role, // Retornar el rol del usuario
+        token // Retornar el token al cliente
+      });
+    }
+  
+    // Si no se encuentra al usuario, enviar un error
+    res.status(400).json({ 
+      error: 'Credenciales incorrectas. Intenta nuevamente.' 
+    });
+  });
+  
+
+
+
+
 // Usar rutas
 app.use('/', publicRouter);
 app.use('/api/v1/clientes', clienteRouter); // Vista cliente
@@ -56,7 +95,7 @@ app.use('/api/v1/pagos', pagoRouter); // Vista pago
 app.use('/api/v1/facturas', facturaRouter); // Vista factura
 
 // RUTAS
-const PORT = process.env.PORT || 3001; // Para usar process.env se importa dotenv/config
+const PORT = process.env.PORT || 3000; // Para usar process.env se importa dotenv/config
 
 // Levantar el servidor
 app.listen(PORT, () => { console.log(`Servidor escuchando en el puerto http://localhost:${PORT}`)});

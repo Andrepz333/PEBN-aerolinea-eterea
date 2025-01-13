@@ -23,7 +23,8 @@ const regUser = async (req, res) => {
         const newUser = await UserModel.createUser({ email, password: hashedPassword, role });
 
         const token = jwt.sign({ email: newUser.email, role: newUser.role },
-             process.env.JWT_SECRET,
+              process.env.JWT_SECRET,
+           
             
             {
                 expiresIn: '1h',
@@ -67,7 +68,8 @@ const logUser = async (req, res) => {
         }
 
         const token = jwt.sign({ email: user.email, role: user.role },
-            process.env.JWT_SECRET,
+             process.env.JWT_SECRET,
+            
             {
                 expiresIn: '1h',
             }

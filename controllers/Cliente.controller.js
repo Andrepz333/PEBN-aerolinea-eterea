@@ -1,12 +1,11 @@
 import { ClientModel } from "../models/Cliente.model.js";
 
 // http://localhost:3000/api/v1/clientes/register
-
 const registerCliente = async (req, res) => {
     try {
         console.log(req.body);//
-        const {nombre, apellido, direccion, telefono, email} = req.body;
-    if(!nombre || !apellido || !direccion || !telefono || !email){
+        const {cliente_id, nombre, apellido, direccion, telefono, email} = req.body;
+    if(!cliente_id || !nombre || !apellido || !direccion || !telefono || !email){
         return res.status(400).json({ok: false, 
                                     message: "Faltan campos!"});
     }
@@ -17,11 +16,11 @@ const registerCliente = async (req, res) => {
     }
 
     //nueva funcionalidad o faltante
-    const newCliente = await ClientModel.createCliente({nombre, apellido, direccion, telefono, email});
+    const newCliente = await ClientModel.createCliente({cliente_id, nombre, apellido, direccion, telefono, email});
 
     return res.status(201).json({
         ok: true,
-        message: "Cliente creado exitosamente" 
+        message: newCliente //cambiar mensaje por cliente creado
     });
     
     }
@@ -34,8 +33,8 @@ const registerCliente = async (req, res) => {
     }
 }
 
-// http://localhost:3000/api/v1/clientes/list
 
+// http://localhost:3000/api/v1/clientes/list
 const listCliente = async (req, res) => {
     try {
         const clientes = await ClientModel.readCliente();
@@ -44,29 +43,46 @@ const listCliente = async (req, res) => {
         res.status(500).json({ message: 'Error al obtener los clientes' });
     }
 };
+// http://localhost:3000/api/v1/clientes/search
 
 const searchCliente = async (req, res) => {
     const { query } = req.query;
+
+    if (!query) {
+        return res.status(400).json({
+            ok: false,
+            message: 'El parámetro de búsqueda es requerido'
+        });
+    }
+
     try {
-        const clients = await ClientModel.findIdOrEmail(query)
-        return res.json( clients )
+        const clients = await ClientModel.findIdOrEmail(query);
+
+        if (!clients || clients.length === 0) {
+            return res.status(404).json({
+                ok: false,
+                message: 'No se encontraron clientes'
+            });
+        }
+
+        return res.json(clients);
 
     } catch (error) {
-        console.log(error)
+        console.error('Error al buscar el cliente:', error);
         return res.status(500).json({
             ok: false,
-            message: 'Error server'
-        })
+            message: 'Error en el servidor'
+        });
     }
-}
+};
+
 
 // http://localhost:3000/api/v1/clientes/deleteClients
-
 const deleteCliente = async (req, res) => {
     const { cliente_id } = req.params;
     const userRole = req.role;
 
-     // Verificar si el rol del usuario es "superadmin" o "usu1"
+     // Verificar si el rol del usuario es "superadmin" o "editor"
      if (userRole !== 'Superadmin' && userRole !== 'editor') {
         return res.status(403).json({
             ok: false,

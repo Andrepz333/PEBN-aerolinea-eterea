@@ -1,17 +1,16 @@
 import {db} from '../database/conexion_db.js';
-
-const createCliente = async ({cliente_id, nombre, apellido, direccion, telefono, email}) => {
+//Metodo Create
+const createCliente = async ({cliente_id, nombre, apellido,  direccion, telefono, email}) => {
     const query = {
         text: `
-        INSERT INTO aerolinea.cliente ( cliente_id, nombre, apellido, direccion, telefono, email)
-        VALUES ($1, $2, $3, $4, $5 $6)
+        INSERT INTO aerolinea.cliente (cliente_id, nombre, apellido,  direccion, telefono, email)
+        VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *
         `,
-        values: [cliente_id, nombre, apellido, direccion, telefono, email]
+        values: [cliente_id, nombre, apellido,  direccion, telefono, email]
     }
 
-
-    const { rows } = await db.query(query);//faltaba definir el rows
+    const { rows } = await db.query(query);
     return rows[0];
 }
 
@@ -19,7 +18,7 @@ const createCliente = async ({cliente_id, nombre, apellido, direccion, telefono,
 const readCliente = async () => {
     const result = {
         text: `
-        SELECT * FROM aerolinea.cliente`
+        SELECT * FROM aerolinea.cliente ORDER BY cliente_id ASC` // ordenar los datos en forma ascendente
     }
     const { rows } = await db.query(result);
     return rows
@@ -63,7 +62,6 @@ const findOneByEmail = async (email) => {
     const {rows} = await db.query(query, [email]);
     return rows[0];
 }
-
 //Buscar por ID
 const findBycliente_id = async (cliente_id) => {
     const query = {
@@ -76,31 +74,18 @@ const findBycliente_id = async (cliente_id) => {
     const { rows } = await db.query(query)
     return rows[0]
 }
-//Buscar por ID o email
 const findIdOrEmail = async (query) => {
-    let queryText;
-    let values;
+    const isNumber = !isNaN(query); // Verifica si el query es numérico
+    const text = isNumber 
+        ? 'SELECT * FROM aerolinea.cliente WHERE cliente_id = $1' 
+        : 'SELECT * FROM aerolinea.cliente WHERE email = $1';
 
-    // Si el query es un número (cliente_id)
-    if (!isNaN(query)) {
-        queryText = `
-        SELECT * FROM aerolinea.cliente 
-        WHERE cliente_id = $1`;
-        values = [query];
-    }
-    // Si el query es un email (cadena de texto)
-    else {
-        queryText = `
-        SELECT * FROM aerolinea.cliente 
-        WHERE email = $1`;
-        values = [query];
-    }
-    const { rows } = await db.query({
-        text: queryText,
-        values: values
-    });
-    return rows;
-}
+    const values = [query];
+
+    const { rows } = await db.query({ text, values });
+    return rows; // Devuelve directamente las filas
+};
+
 
 //Metodo Delete
 const deleteCliente = async (cliente_id) => {
@@ -135,6 +120,5 @@ export const ClientModel = {
     deleteCliente,
     findOneByEmail,
     findBycliente_id,
-    findIdOrEmail,
-    
+    findIdOrEmail
 }

@@ -1,6 +1,7 @@
 import {db} from '../database/conexion_db.js';
 
-const create = async ({nombre, apellido, numero_pasaporte, id_cliente }) => {
+//Metodo Create
+const createPasajero = async ({nombre, apellido, numero_pasaporte, id_cliente}) => {
     const query = {
         text: `
         INSERT INTO aerolinea.pasajero (nombre, apellido, numero_pasaporte, id_cliente)
@@ -9,35 +10,128 @@ const create = async ({nombre, apellido, numero_pasaporte, id_cliente }) => {
         `,
         values: [nombre, apellido, numero_pasaporte, id_cliente]
     }
-//(1076017781, 'Juan', 'Pérez', 'Ortiz', '123456789', '987654321', 'juan@email.com')
-    const { rows } = await db.query(query);//faltaba definir el rows
+
+    const { rows } = await db.query(query);
     return rows[0];
 }
 
-//Mostrar datos de los clientes
-const show = async (req, res) => {
-    const result = await db.query('SELECT * FROM aerolinea.pasajero');
-    res.json(result.rows);
+//Metodo Read
+const readPasajero = async () => {
+    const result = {
+        text: `SELECT * FROM aerolinea.pasajero ORDER BY pasajero_id ASC` //organiza los datos de manera ascendente
+    }
+    const { rows } = await db.query(result);
+    return rows
 }
 
+// Método Update modificado para usar número de pasaporte
+const updatePasajero = async (numero_pasaporte, updateFields) => {
+    const setClause = Object.keys(updateFields).map((key, index) => `${key} = $${index + 2}`).join(', ');
+    const values = [numero_pasaporte, ...Object.values(updateFields)];
 
-//Buscar o validar si el pasaporte ya existe
+    const updateQuery = {
+        text: `
+        UPDATE aerolinea.pasajero
+        SET ${setClause}
+        WHERE numero_pasaporte = $1
+        RETURNING *
+        `,
+        values: values
+    };
 
-const findOneByPassport = async (numero_pasaporte) => {
+    try {
+        const { rows } = await db.query(updateQuery);
+        if (rows.length === 0) {
+            throw new Error('Pasajero no encontrado');
+        }
+        return rows[0];
+    } catch (error) {
+        console.error('Error al actualizar el pasajero:', error);
+        throw new Error('Error al intentar actualizar el pasajero');
+    }
+};
+
+// Buscar por número de pasaporte
+const findByPasaporte = async (numero_pasaporte) => {
     const query = {
         text: `
-            SELECT * FROM aerolinea.pasajero
-            WHERE numero_pasaporte = $1
+        SELECT * FROM aerolinea.pasajero 
+        WHERE numero_pasaporte = $1
         `,
         values: [numero_pasaporte]
     }
-    const { rows } = await db.query(query, [numero_pasaporte]);
+    const {rows} = await db.query(query);
     return rows[0];
 }
 
+// Buscar por ID del cliente
+const findByIdCliente = async (id_cliente) => {
+    const query = {
+        text: `
+        SELECT * FROM aerolinea.pasajero
+        WHERE id_cliente = $1
+        `,
+        values: [id_cliente]
+    }
+    const { rows } = await db.query(query);
+    return rows; // Retorna todos los pasajeros asociados al cliente
+}
+
+// Búsqueda flexible por pasaporte o id_cliente
+const findByPasaporteOrIdCliente = async (searchQuery) => {
+    let query;
+
+    if (!isNaN(searchQuery)) {
+        // Si `searchQuery` es un número, busca por `id_cliente`
+        query = {
+            text: `SELECT * FROM aerolinea.pasajero WHERE id_cliente = $1`,
+            values: [parseInt(searchQuery, 10)] // Asegura que sea un entero
+        };
+    } else {
+        // Si `searchQuery` no es un número, busca por `numero_pasaporte`
+        query = {
+            text: `SELECT * FROM aerolinea.pasajero WHERE numero_pasaporte = $1`,
+            values: [searchQuery]
+        };
+    }
+
+    try {
+        const { rows } = await db.query(query);
+        return rows;
+    } catch (error) {
+        console.error('Error al buscar pasajero:', error);
+        throw error; // Propaga el error para manejarlo en el controlador
+    }
+};
+
+
+// Método Delete modificado para usar número de pasaporte
+const deletePasajero = async (numero_pasaporte) => {
+    const deleteQuery = {
+        text: `
+        DELETE FROM aerolinea.pasajero
+        WHERE numero_pasaporte = $1
+        `,
+        values: [numero_pasaporte]
+    }
+    try {
+        const result = await db.query(deleteQuery);
+        if (result.rowCount === 0) {
+            throw new Error('Pasajero no encontrado');
+        }
+        return { success: true, message: 'Pasajero eliminado' };
+    } catch (error) {
+        console.error('Error al eliminar el pasajero:', error);
+        throw new Error('Error al intentar eliminar el pasajero');
+    }
+}
 
 export const pasajeroModel = {
-    create,
-    show,
-    findOneByPassport
+    createPasajero,
+    readPasajero,
+    updatePasajero,
+    deletePasajero,
+    findByPasaporte,
+    findByIdCliente,
+    findByPasaporteOrIdCliente
 }
