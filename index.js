@@ -1,7 +1,6 @@
 import 'dotenv/config'; // Importa la configuración de entorno 
-import express from 'express'; // Importar el modulo express
-import jwt from 'jsonwebtoken'; // Importar la librería jsonwebtoken
-// import cors from 'cors'; // Importar el modulo cors
+import express from 'express'; //Importa el framework express para manejar el servidor y las rutas
+import jwt from 'jsonwebtoken'; // Importar la librería jsonwebtoken para manejar tokens JWT
 import clienteRouter from './routes/Cliente.routes.js';
 import publicRouter from './routes/public.routes.js';
 import usersRouter from './routes/users.routes.js';
@@ -34,7 +33,6 @@ app.get('/', (req, res) => {
 
 
 //Middleware de aplicación app.use()
-//app.use(cors());
 app.use(express.json()); // Parsear el body de la petición a JSON
 app.use(express.urlencoded({ extended: true })); // Formdata para trámites con formularios
 
